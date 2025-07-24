@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>🎉 Pesta Ulang Tahun Super Meriah! 🎂</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #1a1a1a, #000);
+      font-family: 'Comic Sans MS', cursive;
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 4em;
+      margin-top: 20px;
+      text-shadow: 0 0 20px #ff00cc, 0 0 40px #ffcc00;
+      animation: glow 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 20px #ff3399; }
+      to { text-shadow: 0 0 40px #ffcc00; }
+    }
+
+    #message {
+      font-size: 2em;
+      margin: 10px auto;
+      animation: fadeIn 2s ease-in-out;
+      max-width: 90%;
+      line-height: 1.6em;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .cake {
+      width: 350px;
+      animation: float 3s ease-in-out infinite;
+      position: relative;
+      z-index: 2;
+      display: none;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .heart {
+      width: 20px;
+      height: 20px;
+      background: pink;
+      position: fixed;
+      transform: rotate(45deg);
+      animation: floatHeart 5s linear infinite;
+      z-index: 2;
+    }
+
+    .heart::before, .heart::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: pink;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .heart::before { top: -10px; left: 0; }
+    .heart::after  { top: 0; left: -10px; }
+
+    @keyframes floatHeart {
+      0% { transform: translateY(0) scale(1) rotate(45deg); opacity: 1; }
+      100% { transform: translateY(-100vh) scale(1.5) rotate(45deg); opacity: 0; }
+    }
+
+    .balloon {
+      position: fixed;
+      bottom: -100px;
+      width: 40px;
+      height: 60px;
+      border-radius: 50% 50% 45% 45%;
+      background: radial-gradient(circle, #ff6f61, #ffcccb);
+      animation: rise 10s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes rise {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-120vh); }
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .audio-control {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+    }
+
+    #countdown {
+      font-size: 5em;
+      margin-top: 100px;
+      color: #ff66cc;
+      text-shadow: 0 0 10px #fff;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    #birthdayPhoto {
+      width: 300px;
+      margin-top: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px pink;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+  <h1>🎈 Selamat Ulang Tahun! 🎂</h1>
+  <div id="message">Selamat ulang tahun UMEl, semoga jadi anak yang sholehah samaorang tua, tambah cantik, sehatselalu, ciee udah tua 🌸💫🌟</div>
+
+  <div id="countdown">3</div>
+
+  <img src="kue%20ulang%20tahun.png" alt="Kue Ulang Tahun" class="cake" id="cake">
+  <img src="foto-ulang-tahun.jpg" alt="Foto Ulang Tahun" id="birthdayPhoto">
+
+  <div class="audio-control">
+    <label for="music">Ganti Musik: </label>
+    <input type="file" id="music" accept="audio/*">
+  </div>
+
+  <audio id="birthdayMusic" autoplay loop>
+    <source src="c:\Users\ThinkPad\Downloads\Jamrud - Selamat Ulang Tahun (lyrics).mp3" type="audio/mpeg">
+  </audio>
+  <audio id="boomSound" src="https://www.soundjay.com/explosion/explosion-01.mp3" preload="auto"></audio>
+  <audio id="clap" src="https://www.soundjay.com/human/applause-8.mp3" preload="auto"></audio>
+
+  <script>
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const colors = ['#ffcc00', '#ff9900', '#cc3300', '#993300'];
+    const boomSound = document.getElementById('boomSound');
+    const clap = document.getElementById('clap');
+    const cake = document.getElementById('cake');
+    const photo = document.getElementById('birthdayPhoto');
+    let countdown = 3;
+
+    function createFirework() {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height / 2;
+      boomSound.currentTime = 0;
+      boomSound.play();
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x, y,
+          radius: Math.random() * 3 + 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          speedX: (Math.random() - 0.5) * 7,
+          speedY: (Math.random() - 0.5) * 7,
+          alpha: 1
+        });
+      }
+    }
+
+    function animateFireworks() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.alpha -= 0.01;
+        if (p.alpha <= 0) particles.splice(i, 1);
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animateFireworks);
+    }
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.style.left = Math.random() * window.innerWidth + "px";
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 5000);
+    }
+
+    function createBalloon() {
+      const balloon = document.createElement("div");
+      balloon.className = "balloon";
+      balloon.style.left = Math.random() * window.innerWidth + "px";
+      balloon.style.background = `radial-gradient(circle, hsl(${Math.random()*360}, 70%, 60%), #fff)`;
+      document.body.appendChild(balloon);
+      setTimeout(() => balloon.remove(), 10000);
+    }
+
+    document.getElementById("music").addEventListener("change", function (e) {
+      const musicFile = e.target.files[0];
+      if (musicFile) {
+        const audio = document.getElementById("birthdayMusic");
+        audio.src = URL.createObjectURL(musicFile);
+        audio.play();
+      }
+    });
+
+    setInterval(createFirework, 1000);
+    setInterval(createHeart, 300);
+    setInterval(createBalloon, 400);
+    animateFireworks();
+
+    const countdownDiv = document.getElementById("countdown");
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        countdownDiv.textContent = countdown;
+      } else {
+        clearInterval(countdownInterval);
+        countdownDiv.style.display = "none";
+        cake.style.display = "block";
+        photo.style.display = "inline-block";
+        clap.currentTime = 0;
+        clap.play();
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
